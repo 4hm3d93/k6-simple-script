@@ -17,9 +17,11 @@ export const options = {
       executor: 'ramping-vus',
       startVUs: 0,
       stages: [
-        { duration: '10s', target: 100 },
+        { duration: '10s', target: 200 },
         { duration: '1m', target: 4000 },
         { duration: '30s', target: 4000 },
+        { duration: '10s', target: 8000 },
+        { duration: '2m', target: 8000 },
         { duration: '10s', target: 0 },
       ],
       gracefulStop: '5s',
@@ -27,12 +29,12 @@ export const options = {
   },
   thresholds: {
     http_req_failed: ['rate<0.01'],
-    http_req_duration: ['avg < 500'],
-    http_req_receiving: ['avg < 12000'],
+    http_req_duration ['p(95)<200', 'avg < 400'],
+    http_req_receiving: ['avg < 2000'],
     http_req_sending: ['avg < 0.3'],
     http_req_tls_handshaking: ['avg < 50'],
-    http_req_waiting: ['avg < 5800'],
-    iteration_duration: ['avg < 25000'],
+    http_req_waiting: ['avg < 2000'],
+    iteration_duration: ['avg < 15000'],
   },
 };
 
