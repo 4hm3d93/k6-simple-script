@@ -29,7 +29,7 @@ export const options = {
   },
   thresholds: {
     http_req_failed: ['rate<0.01'],
-    http_req_duration ['p(95)<200', 'avg < 400'],
+    http_req_duration: ['avg < 300'],
     http_req_receiving: ['avg < 2000'],
     http_req_sending: ['avg < 0.3'],
     http_req_tls_handshaking: ['avg < 50'],
