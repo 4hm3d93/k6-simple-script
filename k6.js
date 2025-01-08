@@ -1,12 +1,12 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
+import { URLSearchParams } from 'https://jsc.k6.io/web/url';
 
 const baseUrl = 'https://loyalty.example.com';
 const loginPagePath = '/login';
-const dashboardPath = '/home';
+const homePagePath = '/home';
 const emailInputField = '#email';
 const passwordInputField = '#password';
-
 const userEmail = 'testuser@monri.ba';
 const userPassword = 'LoyaltyWebApp123!';
 const sleepDuration = 1;
@@ -25,24 +25,37 @@ export const options = {
       gracefulStop: '5s',
     },
   },
+  thresholds: {
+    http_req_failed: ['rate<0.01'],
+    http_req_duration: ['avg < 500'],
+    http_req_receiving: ['avg < 12000'],
+    http_req_sending: ['avg < 0.3'],
+    http_req_tls_handshaking: ['avg < 50'],
+    http_req_waiting: ['avg < 5800'],
+    iteration_duration: ['avg < 25000'],
+  },
 };
 
 export default function () {
   const loginUrl = `${baseUrl}${loginPagePath}`;
-  const requestBody = {
-    [emailInputId.slice(1)]: userEmail,
-    [passwordInputId.slice(1)]: userPassword,
-  };
+  const params = new URLSearchParams();
+  params.append(emailInputField.slice(1), userEmail);
+  params.append(passwordInputField.slice(1), userPassword);
+  const requestBody = params.toString();
   const headers = {
-    'Content-Type': 'application/x-www-form-urlencoded'
+    'Content-Type': 'application/x-www-form-urlencoded',
   };
 
-
-  let loginResponse = http.post(loginUrl, requestBody, {headers: headers});
+  let loginResponse = http.post(loginUrl, requestBody, {
+    headers: headers,
+    tags: { name: 'Login request' },
+  });
 
   check(loginResponse, {
     'Login status is 200': (r) => r.status === 200,
+    'Login response should have a content': (r) => r.body.length > 0,
+    'Login response should contain the home path': (r) =>
+      r.url.includes(homePagePath),
   });
-
   sleep(sleepDuration);
 }
